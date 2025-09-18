@@ -65,6 +65,7 @@ public class SignatureUtil {
 
     private static String formatMap(Map<?, ?> map) {
         return map.entrySet().stream()
+            .filter(e -> e.getValue()  != null)
             .sorted(Comparator.comparing(e -> String.valueOf(e.getKey())))  // Sort by key as string
             .map(e -> {
                 Object value = e.getValue();
