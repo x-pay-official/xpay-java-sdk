@@ -53,13 +53,13 @@ public class ApiClient {
      * @throws XPayApiException if the API returns an error
      * @throws Exception if there is a network or parsing error
      */
-    public <T> T get(String path, Map<String, String> queryParams, TypeReference<T> responseType) throws Exception {
+    public <T> T get(String path, Map<String, Object> queryParams, TypeReference<T> responseType) throws Exception {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + path).newBuilder();
         
         if (queryParams != null) {
-            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
                 if (entry.getValue() != null) {
-                    urlBuilder.addQueryParameter(entry.getKey(), entry.getValue());
+                    urlBuilder.addQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
                 }
             }
         }

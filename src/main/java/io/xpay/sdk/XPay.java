@@ -118,8 +118,8 @@ public class XPay {
      * @throws Exception if there is a network or parsing error
      */
     public ApiResponse<MerchantBalanceData> getMerchantBalance(MerchantBalanceRequest request) throws Exception {
-        SignedRequest signedRequest = generateSignature(request);
-        return apiClient.post("/v1/merchant/getBalance", signedRequest, new TypeReference<ApiResponse<MerchantBalanceData>>() {});
+        Map<String, Object> queryParams = buildSignedQueryParams(request);
+        return apiClient.get("/v1/merchant/getBalance", queryParams, new TypeReference<ApiResponse<MerchantBalanceData>>() {});
     }
 
     /**
@@ -130,8 +130,26 @@ public class XPay {
      * @throws Exception if there is a network or parsing error
      */
     public ApiResponse<CryptoAddressData> getCryptoAddress(CryptoAddressRequest request) throws Exception {
-        SignedRequest signedRequest = generateSignature(request);
-        return apiClient.post("/v1/merchant/getCryptoAddress", signedRequest, new TypeReference<ApiResponse<CryptoAddressData>>() {});
+        Map<String, Object> queryParams = buildSignedQueryParams(request);
+        return apiClient.get("/v1/merchant/getCryptoAddress", queryParams, new TypeReference<ApiResponse<CryptoAddressData>>() {});
+    }
+
+    private Map<String, Object> buildSignedQueryParams(Object requestData) {
+        Map<String, Object> queryParams = new HashMap<>();
+        long timestamp = System.currentTimeMillis() / 1000;
+        String nonce = generateNonce();
+        queryParams.put("timestamp", String.valueOf(timestamp));
+        queryParams.put("nonce", nonce);
+        Map<String, Object> dataParams = SignatureUtil.convertDataToMap(requestData);
+        for (Map.Entry<String, Object> entry : dataParams.entrySet()) {
+            if (entry.getValue() != null) {
+                queryParams.put(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
+
+        String signature = SignatureUtil.generateSignature(queryParams, apiSecret);
+        queryParams.put("sign", signature);
+        return queryParams;
     }
 
     /**

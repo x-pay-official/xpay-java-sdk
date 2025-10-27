@@ -26,8 +26,8 @@ public class XPayExample {
     public static void main(String[] args) {
         // Initialize the SDK with your API credentials
         XPay xpay = new XPay(XPayConfig.builder()
-                .apiKey("x260a3ce674ce4e26b3ab5a3346c206d1")
-                .apiSecret("Hgn7AeMZW79rLgzWCsCsnfUkhQpuk4aESN7g/T4URqYgJcxOO5Ikvk5Vxvg+J4n7")
+                .apiKey("")
+                .apiSecret("")
                 .baseUrl("https://api.x-pay.fun") // Optional, defaults to production API
                 .build());
 
@@ -66,8 +66,8 @@ public class XPayExample {
                 .amount(100.0)
                 .symbol("USDT")
                 .chain("TRON")
-//                .orderId("order-" + System.currentTimeMillis()) // Optional Generate a unique order ID
-                .uid("user123") // Required user ID
+                .orderId("order-" + System.currentTimeMillis()) // Required Generate a unique order ID
+                .uid("user123") // Optional user ID
                 .receiveAddress("TQTdR9EMACFcZCTsCzTzsEKLmYAvZ3WF4H") // User's wallet address
                 .build();
 

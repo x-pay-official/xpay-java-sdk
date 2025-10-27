@@ -150,8 +150,8 @@ public class SignatureUtil {
      * @param symbol - Optional symbol
      * @return Map of query parameters
      */
-    public static Map<String, String> buildQueryParams(String chain, String symbol) {
-        Map<String, String> params = new HashMap<>();
+    public static Map<String, Object> buildQueryParams(String chain, String symbol) {
+        Map<String, Object> params = new HashMap<>();
         if (chain != null) {
             params.put("chain", chain);
         }
