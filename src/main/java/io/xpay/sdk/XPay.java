@@ -1,15 +1,18 @@
 package io.xpay.sdk;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xpay.sdk.client.ApiClient;
 import io.xpay.sdk.exception.XPayApiException;
 import io.xpay.sdk.model.request.CollectionRequest;
+import io.xpay.sdk.model.request.CryptoAddressRequest;
+import io.xpay.sdk.model.request.MerchantBalanceRequest;
 import io.xpay.sdk.model.request.PayoutRequest;
 import io.xpay.sdk.model.request.SignedRequest;
 import io.xpay.sdk.model.response.ApiResponse;
 import io.xpay.sdk.model.response.CollectionData;
+import io.xpay.sdk.model.response.CryptoAddressData;
+import io.xpay.sdk.model.response.MerchantBalanceData;
 import io.xpay.sdk.model.response.OrderDetails;
 import io.xpay.sdk.model.response.PayoutData;
 import io.xpay.sdk.model.response.SupportedSymbol;
@@ -42,7 +45,7 @@ public class XPay {
         this.config = config;
         this.apiSecret = config.getApiSecret();
         this.apiClient = new ApiClient(config);
-        
+
         // Configure ObjectMapper to be more lenient with unknown properties
         this.objectMapper = new ObjectMapper();
         objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -102,9 +105,33 @@ public class XPay {
      * @throws Exception if there is a network or parsing error
      */
     public ApiResponse<List<SupportedSymbol>> getSupportedSymbols(String chain, String symbol) throws Exception {
-        return apiClient.get("/v1/symbol/supportSymbols", 
-                SignatureUtil.buildQueryParams(chain, symbol), 
+        return apiClient.get("/v1/symbol/supportSymbols",
+                SignatureUtil.buildQueryParams(chain, symbol),
                 new TypeReference<ApiResponse<List<SupportedSymbol>>>() {});
+    }
+
+    /**
+     * Get merchant balance for the specified symbol
+     * @param request - Balance request containing the symbol
+     * @return Merchant balance data
+     * @throws XPayApiException if the API returns an error
+     * @throws Exception if there is a network or parsing error
+     */
+    public ApiResponse<MerchantBalanceData> getMerchantBalance(MerchantBalanceRequest request) throws Exception {
+        SignedRequest signedRequest = generateSignature(request);
+        return apiClient.post("/v1/merchant/getBalance", signedRequest, new TypeReference<ApiResponse<MerchantBalanceData>>() {});
+    }
+
+    /**
+     * Get user crypto address for the given chain and symbol
+     * @param request - Request containing chain, symbol, and uid
+     * @return Crypto address details
+     * @throws XPayApiException if the API returns an error
+     * @throws Exception if there is a network or parsing error
+     */
+    public ApiResponse<CryptoAddressData> getCryptoAddress(CryptoAddressRequest request) throws Exception {
+        SignedRequest signedRequest = generateSignature(request);
+        return apiClient.post("/v1/merchant/getCryptoAddress", signedRequest, new TypeReference<ApiResponse<CryptoAddressData>>() {});
     }
 
     /**
@@ -118,29 +145,29 @@ public class XPay {
         try {
             // Parse the webhook body
             WebhookEvent event = objectMapper.readValue(body, WebhookEvent.class);
-            
+
             // Get the data, nonce, and notifyType from the webhook data
             Object data = event.getData();
             String nonce = event.getNonce();
             String notifyType = event.getNotifyType().name();
-            
+
             // Create parameters map for signature generation
             Map<String, Object> params = new HashMap<>();
             params.put("data", SignatureUtil.convertDataToMap(data));
             params.put("nonce", nonce);
             params.put("notifyType", notifyType);
             params.put("timestamp", Long.parseLong(timestamp));
-            
+
             // Generate the expected signature
             String expectedSignature = SignatureUtil.generateSignature(params, config.getApiSecret());
-            
+
             // Check if the timestamp is within 30 seconds
             long currentTime = System.currentTimeMillis() / 1000;
             long webhookTime = Long.parseLong(timestamp);
             if (Math.abs(currentTime - webhookTime) > 30) {
                 return false; // Timestamp is too old or in the future
             }
-            
+
             // Compare the signatures
             return expectedSignature.equals(signature);
         } catch (Exception e) {
@@ -160,9 +187,9 @@ public class XPay {
             if (!verifyWebhook(body, signature, timestamp)) {
                 return null;
             }
-            
+
             WebhookEvent event = objectMapper.readValue(body, WebhookEvent.class);
-            
+
             // Convert the data field to the appropriate type based on notifyType
             if (event.getNotifyType().name().startsWith("ORDER_")) {
                 OrderWebhookData orderData = objectMapper.convertValue(event.getData(), OrderWebhookData.class);
@@ -171,7 +198,7 @@ public class XPay {
                 CollectWebhookData collectData = objectMapper.convertValue(event.getData(), CollectWebhookData.class);
                 event.setData(collectData);
             }
-            
+
             return event;
         } catch (Exception e) {
             throw new RuntimeException(e);

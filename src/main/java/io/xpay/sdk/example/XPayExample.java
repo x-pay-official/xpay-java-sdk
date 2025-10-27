@@ -3,14 +3,19 @@ package io.xpay.sdk.example;
 import io.xpay.sdk.XPay;
 import io.xpay.sdk.XPayConfig;
 import io.xpay.sdk.model.request.CollectionRequest;
+import io.xpay.sdk.model.request.CryptoAddressRequest;
+import io.xpay.sdk.model.request.MerchantBalanceRequest;
 import io.xpay.sdk.model.request.PayoutRequest;
 import io.xpay.sdk.model.response.ApiResponse;
 import io.xpay.sdk.model.response.CollectionData;
+import io.xpay.sdk.model.response.CryptoAddressData;
+import io.xpay.sdk.model.response.MerchantBalanceData;
 import io.xpay.sdk.model.response.OrderDetails;
 import io.xpay.sdk.model.response.PayoutData;
 import io.xpay.sdk.model.response.SupportedSymbol;
 import io.xpay.sdk.model.webhook.WebhookEvent;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -21,8 +26,8 @@ public class XPayExample {
     public static void main(String[] args) {
         // Initialize the SDK with your API credentials
         XPay xpay = new XPay(XPayConfig.builder()
-                .apiKey("")
-                .apiSecret("")
+                .apiKey("x260a3ce674ce4e26b3ab5a3346c206d1")
+                .apiSecret("Hgn7AeMZW79rLgzWCsCsnfUkhQpuk4aESN7g/T4URqYgJcxOO5Ikvk5Vxvg+J4n7")
                 .baseUrl("https://api.x-pay.fun") // Optional, defaults to production API
                 .build());
 
@@ -38,6 +43,10 @@ public class XPayExample {
 
             // Get supported symbols
             getSupportedSymbolsExample(xpay);
+
+            // Query balances and addresses
+            getMerchantBalanceExample(xpay);
+            getCryptoAddressExample(xpay);
 
             // Process webhook
             processWebhookExample(xpay);
@@ -59,7 +68,7 @@ public class XPayExample {
                 .chain("TRON")
 //                .orderId("order-" + System.currentTimeMillis()) // Optional Generate a unique order ID
                 .uid("user123") // Required user ID
-                .receiveAddress("TXmVthgn6yT1kANGJHTHcbEGEKYDLLGJGp") // User's wallet address
+                .receiveAddress("TQTdR9EMACFcZCTsCzTzsEKLmYAvZ3WF4H") // User's wallet address
                 .build();
 
         ApiResponse<PayoutData> response = xpay.createPayout(request);
@@ -88,8 +97,8 @@ public class XPayExample {
                 .amount(50.0)
                 .symbol("USDT")
                 .chain("TRON")
-//                .orderId("order-" + System.currentTimeMillis()) // Optional Generate a unique order ID
-                .uid("user123") // Required user ID
+                .orderId("order-" + System.currentTimeMillis()) // Required Generate a unique order ID
+                .uid("user123") // Optional user ID
                 .build();
 
         ApiResponse<CollectionData> response = xpay.createCollection(request);
@@ -170,6 +179,62 @@ public class XPayExample {
                 }
             }
         }
+    }
+
+    /**
+     * Get merchant balance example
+     */
+    private static void getMerchantBalanceExample(XPay xpay) throws Exception {
+        System.out.println("\nQuerying merchant balance...");
+
+        MerchantBalanceRequest request = MerchantBalanceRequest.builder()
+                .symbol("USDT")
+                .build();
+
+        ApiResponse<MerchantBalanceData> response = xpay.getMerchantBalance(request);
+
+        System.out.println("Merchant balance response:");
+        System.out.println("- Code: " + response.getCode());
+        System.out.println("- Message: " + response.getMsg());
+
+        if (response.getData() != null) {
+            MerchantBalanceData data = response.getData();
+            System.out.println("- Merchant ID: " + data.getMerchantId());
+            System.out.println("- Symbol: " + data.getSymbol());
+            System.out.println("- Balance: " + toPlainString(data.getBalance()));
+            System.out.println("- Frozen: " + toPlainString(data.getFrozenBalance()));
+            System.out.println("- Total: " + toPlainString(data.getTotalBalance()));
+        }
+    }
+
+    /**
+     * Get crypto address example
+     */
+    private static void getCryptoAddressExample(XPay xpay) throws Exception {
+        System.out.println("\nFetching user crypto address...");
+
+        CryptoAddressRequest request = CryptoAddressRequest.builder()
+                .chain("TRON")
+                .symbol("USDT")
+                .uid("user123")
+                .build();
+
+        ApiResponse<CryptoAddressData> response = xpay.getCryptoAddress(request);
+
+        System.out.println("Crypto address response:");
+        System.out.println("- Code: " + response.getCode());
+        System.out.println("- Message: " + response.getMsg());
+
+        if (response.getData() != null) {
+            CryptoAddressData data = response.getData();
+            System.out.println("- Chain: " + data.getChain());
+            System.out.println("- Symbol: " + data.getSymbol());
+            System.out.println("- Address: " + data.getAddress());
+        }
+    }
+
+    private static String toPlainString(BigDecimal value) {
+        return value != null ? value.stripTrailingZeros().toPlainString() : "0";
     }
 
     /**
