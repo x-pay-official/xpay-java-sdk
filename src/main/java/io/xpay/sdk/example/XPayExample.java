@@ -44,8 +44,10 @@ public class XPayExample {
             // Get supported symbols
             getSupportedSymbolsExample(xpay);
 
-            // Query balances and addresses
+            // Query balances
             getMerchantBalanceExample(xpay);
+            // Query addresses
+            // The merchant must have a one-to-one relationship between the address and the user to require this method.
             getCryptoAddressExample(xpay);
 
             // Process webhook
