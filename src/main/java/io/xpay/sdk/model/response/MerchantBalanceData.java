@@ -1,7 +1,6 @@
 package io.xpay.sdk.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,15 +31,15 @@ public class MerchantBalanceData {
     /**
      * Available balance amount
      */
-    private BigDecimal balance;
+    private String balance;
 
     /**
      * Frozen balance amount
      */
-    private BigDecimal frozenBalance;
+    private String frozenBalance;
 
     /**
      * Total balance amount (redundant reference)
      */
-    private BigDecimal totalBalance;
+    private String totalBalance;
 }

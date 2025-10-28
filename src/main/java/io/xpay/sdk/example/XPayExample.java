@@ -203,9 +203,9 @@ public class XPayExample {
             MerchantBalanceData data = response.getData();
             System.out.println("- Merchant ID: " + data.getMerchantId());
             System.out.println("- Symbol: " + data.getSymbol());
-            System.out.println("- Balance: " + toPlainString(data.getBalance()));
-            System.out.println("- Frozen: " + toPlainString(data.getFrozenBalance()));
-            System.out.println("- Total: " + toPlainString(data.getTotalBalance()));
+            System.out.println("- Balance: " + data.getBalance());
+            System.out.println("- Frozen: " + data.getFrozenBalance());
+            System.out.println("- Total: " + data.getTotalBalance());
         }
     }
 

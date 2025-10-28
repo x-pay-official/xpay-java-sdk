@@ -1,7 +1,6 @@
 package io.xpay.sdk.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.xpay.sdk.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +18,11 @@ public class OrderDetails {
      * Order ID
      */
     private String orderId;
+
+    /**
+     * user id
+     */
+    private String uid;
     
     /**
      * Order type
@@ -34,6 +38,21 @@ public class OrderDetails {
      * Reason for failure (if any)
      */
     private String reason;
+
+    /**
+     * amount
+     */
+    private String amount;
+
+    /**
+     * actual amount
+     */
+    private String actualAmount;
+
+    /**
+     * Platform handling fee
+     */
+    private String fee;
     
     /**
      * Transaction details

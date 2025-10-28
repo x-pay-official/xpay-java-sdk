@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * Order Webhook Data
  */
@@ -34,6 +36,16 @@ public class OrderWebhookData {
      * Reason for failure (if any)
      */
     private String reason;
+
+    /**
+     * amount
+     */
+    private BigDecimal amount;
+
+    /**
+     * actual amount
+     */
+    private BigDecimal actualAmount;
     
     /**
      * Transaction details
